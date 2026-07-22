@@ -12,7 +12,12 @@ resultado se publica como **reporte Markdown con graficas Mermaid**.
 ## Ultimo reporte
 
 <!-- LATEST_REPORT_START -->
-_Aun no hay corridas. Ejecuta el workflow para generar el primer reporte._
+**Ultima corrida:** 2026-07-22 02:55 UTC - Veredicto `PASS`  
+Reporte completo: [`reports/report-2026-07-22_0255.md`](reports/report-2026-07-22_0255.md)
+
+| Escenario | Muestras | Error % | p95 (ms) | req/s |
+| --- | --- | --- | --- | --- |
+| smoke | 163 | 0.0% | 18.9 | 5.58 |
 <!-- LATEST_REPORT_END -->
 
 ---
