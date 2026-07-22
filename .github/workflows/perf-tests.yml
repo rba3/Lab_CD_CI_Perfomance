@@ -1,0 +1,191 @@
+name: Performance PokeAPI (JMeter)
+
+# Se dispara de forma AUTOMATICA (cron diario) y tambien MANUAL (workflow_dispatch)
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "Escenario a ejecutar"
+        type: choice
+        options: [both, smoke, load]
+        default: both
+      threads:
+        description: "Usuarios concurrentes (vacio = default del plan)"
+        required: false
+        default: ""
+      rampup:
+        description: "Ramp-up en segundos (vacio = default)"
+        required: false
+        default: ""
+      duration:
+        description: "Duracion en segundos (vacio = default)"
+        required: false
+        default: ""
+      think:
+        description: "Think time en ms (vacio = default)"
+        required: false
+        default: ""
+  schedule:
+    # Todos los dias 13:00 UTC (~07:00 CDMX)
+    - cron: "0 13 * * *"
+
+permissions:
+  contents: write   # commitear el reporte generado
+  models: read      # usar el agente de IA (GitHub Models)
+
+concurrency:
+  group: perf-pokeapi
+  cancel-in-progress: false
+
+jobs:
+  perf:
+    runs-on: ubuntu-latest
+    env:
+      JMETER_VERSION: "5.6.3"
+      SCENARIO: ${{ github.event.inputs.scenario || 'both' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache JMeter
+        id: cache-jmeter
+        uses: actions/cache@v4
+        with:
+          path: apache-jmeter-5.6.3
+          key: jmeter-5.6.3
+
+      - name: Instalar JMeter
+        if: steps.cache-jmeter.outputs.cache-hit != 'true'
+        run: |
+          wget -q "https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz"
+          tar -xzf "apache-jmeter-${JMETER_VERSION}.tgz"
+
+      - name: Registrar JMeter en PATH
+        run: echo "$PWD/apache-jmeter-${JMETER_VERSION}/bin" >> "$GITHUB_PATH"
+
+      - name: Ejecutar pruebas JMeter
+        run: |
+          set -e
+          mkdir -p results reports
+          # Overrides opcionales (solo cuando el usuario los pasa en dispatch manual)
+          ARGS=""
+          [ -n "${{ github.event.inputs.threads }}" ]  && ARGS="$ARGS -Jthreads=${{ github.event.inputs.threads }}"
+          [ -n "${{ github.event.inputs.rampup }}" ]   && ARGS="$ARGS -Jrampup=${{ github.event.inputs.rampup }}"
+          [ -n "${{ github.event.inputs.duration }}" ] && ARGS="$ARGS -Jduration=${{ github.event.inputs.duration }}"
+          [ -n "${{ github.event.inputs.think }}" ]    && ARGS="$ARGS -Jthink=${{ github.event.inputs.think }}"
+
+          run_one () {
+            local name="$1"
+            echo "== Ejecutando escenario: $name =="
+            rm -rf "reports/html-$name"
+            jmeter -n -t "tests/$name.jmx" \
+              -Jendpoints=config/pokeapi-endpoints.csv \
+              $ARGS \
+              -l "results/$name.jtl" \
+              -e -o "reports/html-$name"
+          }
+
+          case "$SCENARIO" in
+            smoke) run_one smoke ;;
+            load)  run_one load ;;
+            both)  run_one smoke; run_one load ;;
+          esac
+
+      - name: Calcular metricas
+        run: |
+          set -e
+          METRICS=""
+          for f in results/*.jtl; do
+            [ -e "$f" ] || continue
+            name=$(basename "$f" .jtl)
+            python3 scripts/parse_results.py "$f" "$name" "reports/metrics-$name.json"
+            METRICS="$METRICS reports/metrics-$name.json"
+          done
+          echo "METRICS=$METRICS" >> "$GITHUB_ENV"
+
+      - name: Armar prompt para el agente
+        run: |
+          {
+            echo "Analiza estos resultados de una prueba de performance JMeter contra PokeAPI."
+            echo "SLOs de referencia: error < 1%, p95 < 800 ms."
+            echo "Responde en espanol. La PRIMERA palabra debe ser exactamente PASS, WARN o FAIL."
+            echo "Luego 2-4 puntos con hallazgos y recomendaciones concretas. Se breve."
+            echo ""
+            echo "=== METRICAS (JSON) ==="
+            cat reports/metrics-*.json
+          } > prompt.txt
+          cat prompt.txt
+
+      - name: Validacion por agente de IA (GitHub Models)
+        id: ai
+        continue-on-error: true
+        uses: actions/ai-inference@v1
+        with:
+          model: openai/gpt-4o-mini
+          prompt-file: prompt.txt
+          max-tokens: 500
+          system-prompt: "Eres un ingeniero de performance senior. Analizas metricas de carga y das un veredicto claro y accionable."
+
+      - name: Consolidar veredicto (con fallback)
+        env:
+          AI_RESPONSE: ${{ steps.ai.outputs.response }}
+        run: |
+          set -e
+          if [ -n "$AI_RESPONSE" ]; then
+            printf '%s\n' "$AI_RESPONSE" > verdict.md
+          else
+            echo "Agente de IA no disponible; veredicto calculado por umbrales."
+            # Fallback: PASS/WARN/FAIL a partir de error% y p95 max entre escenarios
+            worst=$(jq -s 'map(.overall // {}) | {err: (map(.error_pct // 0) | max), p95: (map(.p95_ms // 0) | max)}' reports/metrics-*.json)
+            err=$(echo "$worst" | jq '.err'); p95=$(echo "$worst" | jq '.p95')
+            level=PASS
+            awk "BEGIN{exit !($err>1 || $p95>1500)}" && level=FAIL
+            [ "$level" = "PASS" ] && awk "BEGIN{exit !($err>0.1 || $p95>800)}" && level=WARN
+            printf '%s (fallback por umbrales)\n\n- Error maximo: %s%%\n- p95 maximo: %s ms\n' "$level" "$err" "$p95" > verdict.md
+          fi
+          cat verdict.md
+
+      - name: Generar reporte Markdown
+        run: |
+          set -e
+          STAMP=$(date -u +"%Y-%m-%d_%H%M")
+          HUMAN=$(date -u +"%Y-%m-%d %H:%M UTC")
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          python3 scripts/gen_report.py \
+            --out "reports/report-${STAMP}.md" \
+            --date "$HUMAN" \
+            --run-url "$RUN_URL" \
+            --verdict verdict.md \
+            --metrics $METRICS
+          echo "REPORT=reports/report-${STAMP}.md" >> "$GITHUB_ENV"
+          {
+            echo "## Reporte de performance PokeAPI"
+            cat "reports/report-${STAMP}.md"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Subir artefactos
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-results
+          path: |
+            results/
+            reports/
+          retention-days: 14
+
+      - name: Commitear reporte
+        run: |
+          git config user.name "perf-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add reports/ README.md
+          if git diff --cached --quiet; then
+            echo "Sin cambios para commitear."
+          else
+            git commit -m "Reporte de performance ${REPORT} [skip ci]"
+            git push
+          fi

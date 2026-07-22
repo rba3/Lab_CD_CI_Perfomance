@@ -1,0 +1,18 @@
+# JMeter
+apache-jmeter-*/
+apache-jmeter-*.tgz
+*.jtl
+jmeter.log
+results/
+
+# Python
+__pycache__/
+*.pyc
+
+# temporales del workflow
+prompt.txt
+verdict.md
+
+# reportes HTML generados por JMeter (-e -o); se guardan como artefacto, no en git
+reports/html-*/
+reports/metrics-*.json

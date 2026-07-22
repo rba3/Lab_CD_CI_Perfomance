@@ -1,0 +1,11 @@
+label,path
+pokemon-ditto,/api/v2/pokemon/ditto
+pokemon-pikachu,/api/v2/pokemon/pikachu
+pokemon-charizard,/api/v2/pokemon/charizard
+pokemon-list,/api/v2/pokemon?limit=20&offset=0
+type-water,/api/v2/type/water
+type-fire,/api/v2/type/fire
+ability-static,/api/v2/ability/static
+berry-cheri,/api/v2/berry/cheri
+move-tackle,/api/v2/move/tackle
+generation-1,/api/v2/generation/1

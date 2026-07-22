@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PokeAPI Perf Lab — Infografia</title>
+<style>
+  :root{
+    --poke-yellow:#FFCB05;
+    --poke-blue:#2A75BB;
+    --poke-blue-dark:#003A70;
+    --poke-red:#EE1515;
+    --poke-red-dark:#B01313;
+    --ink:#1a1a2e;
+    --paper:#f4f6fb;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(circle at 15% -10%, rgba(255,203,5,.25), transparent 40%),
+      radial-gradient(circle at 90% 0%, rgba(42,117,187,.25), transparent 42%),
+      var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    padding:clamp(16px,4vw,48px);
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+
+  /* ---------- Hero / wordmark ---------- */
+  header{text-align:center;margin-bottom:40px}
+  .ball{
+    width:64px;height:64px;border-radius:50%;margin:0 auto 18px;
+    background:linear-gradient(180deg,var(--poke-red) 0 47%,#fff 47% 53%,#fff 53% 100%);
+    border:4px solid var(--ink);position:relative;
+    box-shadow:0 8px 22px rgba(0,0,0,.25);
+  }
+  .ball::after{
+    content:"";position:absolute;top:50%;left:50%;
+    width:18px;height:18px;border-radius:50%;
+    background:#fff;border:4px solid var(--ink);transform:translate(-50%,-50%);
+  }
+  .wordmark{
+    font-family:"Arial Black","Helvetica Neue",Impact,sans-serif;
+    font-weight:900;letter-spacing:1px;line-height:.95;
+    font-size:clamp(38px,8vw,84px);
+    color:var(--poke-yellow);
+    -webkit-text-stroke:clamp(2px,.6vw,5px) var(--poke-blue-dark);
+    text-shadow:4px 5px 0 var(--poke-blue);
+    text-transform:uppercase;
+  }
+  .subtitle{
+    margin-top:14px;font-size:clamp(14px,2.4vw,20px);font-weight:700;
+    color:var(--poke-blue-dark);
+  }
+  .tagline{margin-top:6px;color:#4a5568;font-size:15px}
+
+  /* ---------- Grid & cards ---------- */
+  .grid{display:grid;gap:18px}
+  .cols-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .cols-3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .card{
+    background:var(--card);border-radius:16px;padding:22px;
+    border:3px solid var(--ink);
+    box-shadow:6px 6px 0 rgba(42,117,187,.18);
+  }
+  .card h3{font-size:18px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+  .tag{
+    display:inline-block;font-size:11px;font-weight:800;letter-spacing:.5px;
+    padding:3px 9px;border-radius:999px;text-transform:uppercase;
+    background:var(--poke-yellow);color:var(--poke-blue-dark);border:2px solid var(--ink);
+  }
+  .section-title{
+    font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+    color:var(--poke-red-dark);margin:40px 0 16px;text-align:center;
+  }
+
+  /* ---------- Pipeline ---------- */
+  .pipe{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:stretch}
+  .step{
+    flex:1 1 150px;min-width:140px;background:#fff;border:3px solid var(--ink);
+    border-radius:14px;padding:14px;text-align:center;position:relative;
+    box-shadow:4px 4px 0 rgba(238,21,21,.15);
+  }
+  .step .n{
+    display:inline-flex;width:30px;height:30px;border-radius:50%;
+    background:var(--poke-blue);color:#fff;font-weight:800;
+    align-items:center;justify-content:center;margin-bottom:8px;border:2px solid var(--ink);
+  }
+  .step b{display:block;font-size:14px;margin-bottom:4px}
+  .step span{font-size:12px;color:#5a6478}
+
+  /* ---------- Stat tiles ---------- */
+  .stat{text-align:center}
+  .stat .big{font-size:34px;font-weight:900;color:var(--poke-blue);line-height:1}
+  .stat .lbl{font-size:12px;color:#5a6478;margin-top:6px;font-weight:600}
+
+  /* ---------- SLO table ---------- */
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:10px 12px;text-align:left;border-bottom:2px solid #eef0f6}
+  th{background:var(--poke-blue-dark);color:#fff}
+  .pass{color:#128a3a;font-weight:800}
+  .warn{color:#b7791f;font-weight:800}
+  .fail{color:var(--poke-red-dark);font-weight:800}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;
+    background:#eef3fb;border:2px solid var(--poke-blue);color:var(--poke-blue-dark);
+  }
+  footer{text-align:center;margin-top:44px;font-size:12px;color:#7a8499}
+  code{background:#eef0f6;padding:2px 6px;border-radius:6px;font-size:.9em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="ball"></div>
+    <div class="wordmark">PokeAPI<br>Perf&nbsp;Lab</div>
+    <div class="subtitle">Pruebas de performance con JMeter + GitHub Actions</div>
+    <div class="tagline">Automatizado &middot; validado por agente de IA &middot; reporte con graficas</div>
+  </header>
+
+  <div class="section-title">Que hace</div>
+  <div class="grid cols-3">
+    <div class="card stat"><div class="big">JMeter</div><div class="lbl">Motor de carga contra PokeAPI</div></div>
+    <div class="card stat"><div class="big">CI/CD</div><div class="lbl">GitHub Actions: cron + manual</div></div>
+    <div class="card stat"><div class="big">IA</div><div class="lbl">Agente valida las respuestas</div></div>
+  </div>
+
+  <div class="section-title">Pipeline</div>
+  <div class="pipe">
+    <div class="step"><span class="n">1</span><b>Trigger</b><span>Cron diario o Run workflow manual</span></div>
+    <div class="step"><span class="n">2</span><b>JMeter</b><span>Smoke y Load con asserts HTTP 200 + JSON</span></div>
+    <div class="step"><span class="n">3</span><b>Metricas</b><span>p50/p95/p99, throughput, % error</span></div>
+    <div class="step"><span class="n">4</span><b>Agente IA</b><span>Veredicto PASS/WARN/FAIL + tips</span></div>
+    <div class="step"><span class="n">5</span><b>Reporte</b><span>Markdown con graficas Mermaid</span></div>
+  </div>
+
+  <div class="section-title">Escenarios de carga</div>
+  <div class="grid cols-2">
+    <div class="card">
+      <h3><span class="tag">Smoke</span> Humo</h3>
+      <p><b>3 usuarios</b> durante <b>30 s</b>. Confirma que la API responde
+      correctamente con carga minima antes de exigirle mas.</p>
+    </div>
+    <div class="card">
+      <h3><span class="tag">Load</span> Carga</h3>
+      <p><b>50 usuarios</b> durante <b>120 s</b> sostenidos. Carga moderada y
+      respetuosa con la API publica (con think time).</p>
+    </div>
+  </div>
+
+  <div class="section-title">SLOs de referencia</div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Metrica</th><th class="pass">PASS</th><th class="warn">WARN</th><th class="fail">FAIL</th></tr></thead>
+      <tbody>
+        <tr><td>% de error</td><td class="pass">&lt; 0.1%</td><td class="warn">0.1 - 1%</td><td class="fail">&gt; 1%</td></tr>
+        <tr><td>Latencia p95</td><td class="pass">&lt; 800 ms</td><td class="warn">800 - 1500 ms</td><td class="fail">&gt; 1500 ms</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Endpoints probados</div>
+  <div class="card">
+    <div class="chips">
+      <span class="chip">/pokemon/{name}</span>
+      <span class="chip">/pokemon?limit</span>
+      <span class="chip">/type/{name}</span>
+      <span class="chip">/ability/{name}</span>
+      <span class="chip">/berry/{name}</span>
+      <span class="chip">/move/{name}</span>
+      <span class="chip">/generation/{id}</span>
+    </div>
+  </div>
+
+  <div class="section-title">Stack</div>
+  <div class="card">
+    <div class="chips">
+      <span class="chip">Apache JMeter 5.6.3</span>
+      <span class="chip">GitHub Actions</span>
+      <span class="chip">GitHub Models (IA)</span>
+      <span class="chip">Python 3</span>
+      <span class="chip">Mermaid</span>
+      <span class="chip">PokeAPI v2</span>
+    </div>
+  </div>
+
+  <footer>
+    jmeter-pokeapi-lab &middot; Homenaje visual no oficial. Pokemon y PokeAPI
+    pertenecen a sus respectivos duenos.
+  </footer>
+
+</div>
+</body>
+</html>
