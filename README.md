@@ -5,7 +5,12 @@ Laboratorio de **pruebas de performance con Apache JMeter** contra la
 (automatico por cron y manual), un **agente de IA** valida las respuestas y el
 resultado se publica como **reporte Markdown con graficas Mermaid**.
 
-> Infografia del proyecto: [`infografia.html`](infografia.html) (abrela en el navegador).
+## Infografia
+
+![Infografia — PokeAPI Perf Lab](infografia.png)
+
+> Fuente editable: [`infografia.html`](infografia.html). Para regenerar el PNG:
+> `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --force-device-scale-factor=2 --screenshot=infografia.png --window-size=1200,1600 infografia.html`
 
 ---
 
@@ -91,7 +96,8 @@ edita ese CSV: `label,path`.
 
 ```
 jmeter-pokeapi-lab/
-├── infografia.html                # infografia visual (tema Pokemon)
+├── infografia.png                 # infografia (imagen, tema Pokemon)
+├── infografia.html                # fuente editable de la infografia
 ├── README.md
 ├── .github/workflows/perf-tests.yml
 ├── tests/
