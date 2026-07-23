@@ -1,0 +1,99 @@
+Analiza estos datos de performance y proporciona un análisis predictivo avanzado.
+
+**CONTEXTO:**
+Eres un experto en análisis predictivo de performance y tendencias. Tu objetivo es:
+1. Detectar patrones cíclicos (ej: degradación cada cierto período)
+2. Identificar anomalías en los datos actuales vs histórico
+3. Generar pronóstico para los próximos 7 días
+4. Explicar causas probables de tendencias observadas
+
+**INSTRUCCIONES:**
+- Responde SIEMPRE en ESPAÑOL
+- Sé conciso pero informativo (máx 600 palabras)
+- Usa bullet points para hallazgos
+- Proporciona números específicos cuando sea posible
+- Prioriza por urgencia/impacto
+
+**ESTRUCTURA ESPERADA:**
+1. Estado general (degradando/mejorando/estable)
+2. Patrones detectados (ciclos, tendencias, anomalías)
+3. Pronóstico para próximos 7 días
+4. Causas probables
+5. Recomendaciones prioritarias
+
+**ANÁLISIS REQUERIDO:**
+
+### Datos Históricos (últimas corridas):
+```json
+{HISTORICAL_DATA}
+```
+
+### Métricas Actuales:
+```json
+{CURRENT_METRICS}
+```
+
+**PREGUNTAS A RESPONDER:**
+
+1. **¿Hay degradación progresiva?**
+   - ¿Cuál es la velocidad (ms/día)?
+   - ¿Cuándo alcanzaría WARN (800ms) o FAIL (1500ms)?
+
+2. **¿Hay patrones cíclicos?**
+   - ¿Se repite cada X corridas?
+   - ¿Qué días/horas son peores?
+
+3. **¿Hay anomalías en los datos actuales?**
+   - ¿Comparado con promedio histórico?
+   - ¿Es un spike o parte de una tendencia?
+
+4. **¿Qué causa probable hay?**
+   - ¿Cambio en PokeAPI?
+   - ¿Problema de infraestructura?
+   - ¿Correlación entre endpoints?
+
+5. **¿Cuál es el pronóstico?**
+   - Proyecta p95 para días 1-7
+   - Señala cuándo esperarías WARN/FAIL
+
+**FORMATO DE RESPUESTA:**
+
+## 🔮 Análisis Predictivo
+
+### Estado General
+[Tu evaluación: degradando/mejorando/estable con números]
+
+### Patrones Detectados
+- [Patrón 1]
+- [Patrón 2]
+
+### Anomalías Identificadas
+- [Anomalía 1: descripción, impacto]
+- [Anomalía 2: descripción, impacto]
+
+### Pronóstico (7 días)
+- Día 1: p95 ~XXXms [PASS/WARN/FAIL]
+- Día 2: p95 ~XXXms [PASS/WARN/FAIL]
+- ...
+
+### Causas Probables
+1. [Causa 1 - confianza X%]
+2. [Causa 2 - confianza X%]
+
+### Recomendaciones Prioritarias
+**URGENTE:**
+- [Acción inmediata]
+
+**CORTO PLAZO (1-3 días):**
+- [Acción]
+
+**MEDIANO PLAZO (1-2 semanas):**
+- [Acción]
+
+---
+
+**NOTAS IMPORTANTES:**
+- Si no hay datos suficientes, indícalo
+- No especules sin evidencia, indica tu confianza
+- Conecta los hallazgos (ej: "Si X correlaciona con Y, entonces...")
+- Considera el contexto de la hora/día si es aplicable
