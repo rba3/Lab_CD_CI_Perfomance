@@ -25,6 +25,11 @@ on:
         description: "Think time en ms (vacio = default)"
         required: false
         default: ""
+      simular_fallo:
+        description: "Simular un veredicto para demostrar el cierre de ciclo (abre issue)"
+        type: choice
+        options: [no, WARN, FAIL]
+        default: "no"
   schedule:
     # Todos los dias 13:00 UTC (~07:00 CDMX)
     - cron: "0 13 * * *"
@@ -32,6 +37,7 @@ on:
 permissions:
   contents: write   # commitear el reporte generado
   models: read      # usar el agente de IA (GitHub Models)
+  issues: write     # abrir un issue cuando el performance degrada (WARN/FAIL)
 
 concurrency:
   group: perf-pokeapi
@@ -168,6 +174,62 @@ jobs:
             echo "## Reporte de performance PokeAPI"
             cat "reports/report-${STAMP}.md"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Abrir issue si el performance degrada (WARN/FAIL)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SIMULAR: ${{ github.event.inputs.simular_fallo || 'no' }}
+        run: |
+          set -e
+          # Nivel real: primera palabra del veredicto (PASS/WARN/FAIL)
+          LEVEL=$(head -n1 verdict.md | awk '{print $1}' | tr -d '`*#')
+          SIM_NOTE=""
+          if [ "$SIMULAR" = "WARN" ] || [ "$SIMULAR" = "FAIL" ]; then
+            LEVEL="$SIMULAR"
+            SIM_NOTE="> NOTA: veredicto **simulado** manualmente para demostrar el cierre de ciclo.\n"
+          fi
+          echo "Nivel para decidir issue: $LEVEL"
+
+          if [ "$LEVEL" != "WARN" ] && [ "$LEVEL" != "FAIL" ]; then
+            echo "Veredicto $LEVEL: dentro de SLOs, no se abre issue."
+            exit 0
+          fi
+
+          STAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          {
+            printf "%b" "$SIM_NOTE"
+            echo "## Resultado de performance: $LEVEL"
+            echo ""
+            echo "La prueba de carga contra PokeAPI arrojo un veredicto **$LEVEL**."
+            echo "SLOs de referencia: error < 1%, p95 < 800 ms."
+            echo ""
+            echo "- Fecha: $STAMP"
+            echo "- Corrida: $RUN_URL"
+            echo "- Reporte: \`${REPORT}\`"
+            echo ""
+            echo "### Analisis del agente de IA"
+            echo ""
+            cat verdict.md
+            echo ""
+            echo "### Metricas (JSON)"
+            echo ""
+            echo '```json'
+            cat reports/metrics-*.json
+            echo '```'
+            echo ""
+            echo "_Issue abierto automaticamente por el workflow de performance._"
+          } > issue_body.md
+
+          # La etiqueta es opcional: si no se puede crear, se abre el issue sin ella
+          gh label create performance --color FBCA04 --description "Hallazgos de pruebas de performance" --force >/dev/null 2>&1 || true
+          gh issue create \
+            --title "[$LEVEL] Performance PokeAPI degradado - $STAMP" \
+            --body-file issue_body.md \
+            --label performance \
+          || gh issue create \
+            --title "[$LEVEL] Performance PokeAPI degradado - $STAMP" \
+            --body-file issue_body.md
 
       - name: Subir artefactos
         uses: actions/upload-artifact@v4

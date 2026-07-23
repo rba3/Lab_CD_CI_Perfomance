@@ -37,6 +37,7 @@ flowchart LR
     D --> E[Agente IA<br/>GitHub Models]
     E --> F[gen_report.py<br/>Markdown + Mermaid]
     F --> G[Reporte + README<br/>+ artefactos]
+    E -->|WARN / FAIL| H[Issue automatico<br/>con metricas + analisis]
 ```
 
 1. **JMeter** ejecuta los planes contra PokeAPI y valida cada respuesta con
@@ -48,6 +49,10 @@ flowchart LR
    recomendaciones. Si el agente no esta disponible, hay un fallback por umbrales.
 4. **`gen_report.py`** arma el reporte Markdown con graficas Mermaid y actualiza
    esta seccion del README.
+5. **Cierre de ciclo:** si el veredicto es `WARN` o `FAIL`, el workflow **abre
+   automaticamente un issue** con el analisis del agente, las metricas y el enlace
+   a la corrida. Asi la degradacion de performance queda registrada y accionable,
+   sin intervencion manual (usa el `GITHUB_TOKEN`, no requiere nada de pago).
 
 ---
 
@@ -63,6 +68,11 @@ flowchart LR
 | `rampup` | ramp-up en segundos | plan (5 / 30) |
 | `duration` | duracion en segundos | plan (30 / 120) |
 | `think` | think time en ms | plan (500 / 300) |
+| `simular_fallo` | `no`, `WARN` o `FAIL` — fuerza el veredicto para **demostrar el issue automatico** | `no` |
+
+> Tip: para ver el cierre de ciclo sin esperar una degradacion real (PokeAPI casi
+> siempre sale `PASS`), corre el workflow con `simular_fallo = WARN`. Se abrira un
+> issue de ejemplo marcado como simulado.
 
 ### Automatico
 Corre todos los dias a las **13:00 UTC** (~07:00 CDMX) via `cron`.
