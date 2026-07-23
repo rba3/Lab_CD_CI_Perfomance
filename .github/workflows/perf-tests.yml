@@ -119,7 +119,21 @@ jobs:
           done
           echo "METRICS=$METRICS" >> "$GITHUB_ENV"
 
-      - name: Armar prompt para el agente
+      - name: Cargar histórico de corridas
+        run: |
+          # Descargar histórico del último commit (si existe)
+          git show HEAD:reports/historical.json > reports/historical.json 2>/dev/null || echo "[]" > reports/historical.json
+          cat reports/historical.json
+
+      - name: Consolidar métricas
+        run: |
+          set -e
+          # Si hay múltiples métricas, tomar la primera (consolidada)
+          CONSOLIDATED=$(jq -s '.[0]' reports/metrics-*.json)
+          echo "$CONSOLIDATED" > reports/metrics-consolidated.json
+          echo "Métricas consolidadas"
+
+      - name: Armar prompt para el agente principal
         run: |
           {
             echo "Analiza estos resultados de una prueba de performance JMeter contra PokeAPI."
@@ -128,7 +142,7 @@ jobs:
             echo "Luego 2-4 puntos con hallazgos y recomendaciones concretas. Se breve."
             echo ""
             echo "=== METRICAS (JSON) ==="
-            cat reports/metrics-*.json
+            cat reports/metrics-consolidated.json
           } > prompt.txt
           cat prompt.txt
 
@@ -151,9 +165,10 @@ jobs:
             printf '%s\n' "$AI_RESPONSE" > verdict.md
           else
             echo "Agente de IA no disponible; veredicto calculado por umbrales."
-            # Fallback: PASS/WARN/FAIL a partir de error% y p95 max entre escenarios
-            worst=$(jq -s 'map(.overall // {}) | {err: (map(.error_pct // 0) | max), p95: (map(.p95_ms // 0) | max)}' reports/metrics-*.json)
-            err=$(echo "$worst" | jq '.err'); p95=$(echo "$worst" | jq '.p95')
+            # Fallback: PASS/WARN/FAIL a partir de error% y p95 max
+            overall=$(jq '.overall // {}' reports/metrics-consolidated.json)
+            err=$(echo "$overall" | jq '.error_pct // 0')
+            p95=$(echo "$overall" | jq '.p95_ms // 0')
             level=PASS
             awk "BEGIN{exit !($err>1 || $p95>1500)}" && level=FAIL
             [ "$level" = "PASS" ] && awk "BEGIN{exit !($err>0.1 || $p95>800)}" && level=WARN
@@ -161,23 +176,94 @@ jobs:
           fi
           cat verdict.md
 
-      - name: Generar reporte Markdown
+      - name: "🔮 Generar prompt para Agente Predictivo Avanzado"
+        run: |
+          python3 scripts/generate_predictor_prompt.py \
+            reports/metrics-consolidated.json \
+            reports/historical.json \
+            --output prompt-predictor.txt \
+            --template prompts/prompt-predictor-template.txt
+          echo "✅ Prompt predictivo generado"
+
+      - name: "🔮 Análisis Predictivo Avanzado (IA)"
+        id: predictor
+        continue-on-error: true
+        uses: actions/ai-inference@v1
+        with:
+          model: openai/gpt-4o-mini
+          prompt-file: prompt-predictor.txt
+          max-tokens: 600
+          system-prompt: |
+            Eres un experto en análisis predictivo de performance y tendencias.
+            Detectas patrones cíclicos, anomalías, y generas pronósticos.
+            Tu análisis es riguroso y basado en datos.
+            Responde en español. Sé conciso pero informativo.
+
+      - name: "🔮 Procesar respuesta del Agente Predictivo"
+        env:
+          PREDICTOR_RESPONSE: ${{ steps.predictor.outputs.response }}
+        run: |
+          if [ -n "$PREDICTOR_RESPONSE" ]; then
+            printf '%s\n' "$PREDICTOR_RESPONSE" > predictor-response.txt
+            python3 scripts/process_predictor_response.py \
+              predictor-response.txt \
+              reports/metrics-consolidated.json \
+              reports/historical.json \
+              --output reports/analysis-predictor.md
+            echo "✅ Análisis predictivo procesado"
+            cat reports/analysis-predictor.md
+          else
+            echo "⚠️ Agente predictivo no disponible, continuando sin análisis avanzado"
+            echo "# Análisis Predictivo (no disponible)" > reports/analysis-predictor.md
+          fi
+
+      - name: Generar reporte integrado
         run: |
           set -e
           STAMP=$(date -u +"%Y-%m-%d_%H%M")
           HUMAN=$(date -u +"%Y-%m-%d %H:%M UTC")
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          python3 scripts/gen_report.py \
-            --out "reports/report-${STAMP}.md" \
+          
+          python3 scripts/gen_report_enhanced.py \
+            --metrics reports/metrics-consolidated.json \
+            --verdict verdict.md \
             --date "$HUMAN" \
             --run-url "$RUN_URL" \
-            --verdict verdict.md \
-            --metrics $METRICS
+            --historical reports/historical.json \
+            --out "reports/report-${STAMP}.md"
+          
           echo "REPORT=reports/report-${STAMP}.md" >> "$GITHUB_ENV"
+          
+          # Agregar análisis predictivo al resumen
           {
-            echo "## Reporte de performance PokeAPI"
+            echo "## 📊 Reporte de Performance PokeAPI"
+            echo ""
+            echo "### 🔮 Análisis Predictivo"
+            cat reports/analysis-predictor.md
+            echo ""
+            echo "### 📈 Reporte Completo"
             cat "reports/report-${STAMP}.md"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Actualizar histórico de corridas
+        run: |
+          set -e
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # Agregar corrida actual al histórico
+          NEW_ENTRY=$(jq --arg ts "$TIMESTAMP" \
+            '.overall.timestamp = $ts | .timestamp = $ts' \
+            reports/metrics-consolidated.json)
+          
+          # Cargar histórico y agregar
+          HISTORICAL=$(cat reports/historical.json)
+          UPDATED=$(echo "$HISTORICAL" | jq --argjson entry "$NEW_ENTRY" '. += [$entry]')
+          
+          # Mantener solo últimas 30 corridas
+          TRIMMED=$(echo "$UPDATED" | jq '.[-30:]')
+          echo "$TRIMMED" > reports/historical.json
+          
+          echo "Histórico actualizado (últimas 30 corridas)"
 
       - name: Abrir issue si el performance degrada (WARN/FAIL)
         if: github.event_name != 'pull_request'
@@ -213,14 +299,18 @@ jobs:
             echo "- Corrida: $RUN_URL"
             echo "- Reporte: \`${REPORT}\`"
             echo ""
-            echo "### Analisis del agente de IA"
+            echo "### Veredicto del Agente IA Principal"
             echo ""
             cat verdict.md
             echo ""
-            echo "### Metricas (JSON)"
+            echo "### 🔮 Análisis Predictivo Avanzado"
+            echo ""
+            cat reports/analysis-predictor.md
+            echo ""
+            echo "### Métricas (JSON)"
             echo ""
             echo '```json'
-            cat reports/metrics-*.json
+            cat reports/metrics-consolidated.json
             echo '```'
             echo ""
             echo "_Issue abierto automaticamente por el workflow de performance._"
@@ -245,7 +335,7 @@ jobs:
             reports/
           retention-days: 14
 
-      - name: Commitear reporte
+      - name: Commitear reporte e histórico
         if: github.event_name != 'pull_request'
         run: |
           git config user.name "perf-bot"
@@ -254,6 +344,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Sin cambios para commitear."
           else
-            git commit -m "Reporte de performance ${REPORT} [skip ci]"
+            git commit -m "Reporte de performance ${REPORT} + histórico + análisis predictivo [skip ci]"
             git push
           fi
