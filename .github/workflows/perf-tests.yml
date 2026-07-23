@@ -161,23 +161,69 @@ jobs:
           fi
           cat verdict.md
 
-      - name: Generar reporte Markdown
+      - name: Cargar histórico de corridas
+        run: |
+          # Descargar histórico del último commit (si existe)
+          git show HEAD:reports/historical.json > reports/historical.json 2>/dev/null || echo "[]" > reports/historical.json
+          cat reports/historical.json
+
+      - name: Análisis extendido con IA (predicciones, correlaciones)
+        run: |
+          set -e
+          # Consolidar métricas si hay múltiples escenarios
+          CONSOLIDATED=$(jq -s '.[0]' reports/metrics-*.json)
+          echo "$CONSOLIDATED" > reports/metrics-consolidated.json
+          
+          # Ejecutar análisis extendido
+          python3 scripts/ai_analysis.py \
+            "reports/metrics-consolidated.json" \
+            "reports/historical.json" \
+            > reports/analysis-extended.md
+          
+          echo "=== ANÁLISIS EXTENDIDO ==="
+          cat reports/analysis-extended.md
+
+      - name: Generar reporte Markdown mejorado
         run: |
           set -e
           STAMP=$(date -u +"%Y-%m-%d_%H%M")
           HUMAN=$(date -u +"%Y-%m-%d %H:%M UTC")
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          python3 scripts/gen_report.py \
-            --out "reports/report-${STAMP}.md" \
+          
+          python3 scripts/gen_report_enhanced.py \
+            --metrics reports/metrics-consolidated.json \
+            --verdict verdict.md \
             --date "$HUMAN" \
             --run-url "$RUN_URL" \
-            --verdict verdict.md \
-            --metrics $METRICS
+            --historical reports/historical.json \
+            --out "reports/report-${STAMP}.md"
+          
           echo "REPORT=reports/report-${STAMP}.md" >> "$GITHUB_ENV"
+          
           {
-            echo "## Reporte de performance PokeAPI"
+            echo "## 📊 Reporte de Performance PokeAPI"
             cat "reports/report-${STAMP}.md"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Actualizar histórico de corridas
+        run: |
+          set -e
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # Agregar corrida actual al histórico
+          NEW_ENTRY=$(jq --arg ts "$TIMESTAMP" \
+            '.overall.timestamp = $ts | .timestamp = $ts' \
+            reports/metrics-consolidated.json)
+          
+          # Cargar histórico y agregar
+          HISTORICAL=$(cat reports/historical.json)
+          UPDATED=$(echo "$HISTORICAL" | jq --argjson entry "$NEW_ENTRY" '. += [$entry]')
+          
+          # Mantener solo últimas 30 corridas
+          TRIMMED=$(echo "$UPDATED" | jq '.[-30:]')
+          echo "$TRIMMED" > reports/historical.json
+          
+          echo "Histórico actualizado (últimas 30 corridas)"
 
       - name: Abrir issue si el performance degrada (WARN/FAIL)
         if: github.event_name != 'pull_request'
@@ -213,14 +259,18 @@ jobs:
             echo "- Corrida: $RUN_URL"
             echo "- Reporte: \`${REPORT}\`"
             echo ""
-            echo "### Analisis del agente de IA"
+            echo "### Veredicto del Agente IA"
             echo ""
             cat verdict.md
             echo ""
-            echo "### Metricas (JSON)"
+            echo "### Análisis Extendido (Predicciones, Correlaciones)"
+            echo ""
+            cat reports/analysis-extended.md
+            echo ""
+            echo "### Métricas (JSON)"
             echo ""
             echo '```json'
-            cat reports/metrics-*.json
+            cat reports/metrics-consolidated.json
             echo '```'
             echo ""
             echo "_Issue abierto automaticamente por el workflow de performance._"
@@ -245,7 +295,7 @@ jobs:
             reports/
           retention-days: 14
 
-      - name: Commitear reporte
+      - name: Commitear reporte y histórico
         if: github.event_name != 'pull_request'
         run: |
           git config user.name "perf-bot"
@@ -254,6 +304,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Sin cambios para commitear."
           else
-            git commit -m "Reporte de performance ${REPORT} [skip ci]"
+            git commit -m "Reporte de performance ${REPORT} + histórico actualizado [skip ci]"
             git push
           fi
