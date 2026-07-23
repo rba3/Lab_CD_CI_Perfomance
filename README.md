@@ -136,3 +136,6 @@ workflow.
 
 _Este laboratorio consume la API publica de PokeAPI de forma respetuosa
 (carga moderada + think time). No es un servicio oficial de Pokemon ni de PokeAPI._
+
+
+<!--CHG Mireli -->
