@@ -7,7 +7,14 @@ resultado se publica como **reporte Markdown con graficas Mermaid**.
 
 ## Infografia
 
+![Laboratorio de performance con tematica Pokemon](infografia-completa.png)
+
+<details>
+<summary>Ver version resumida</summary>
+
 ![Infografia — PokeAPI Perf Lab](infografia.png)
+
+</details>
 
 > Fuente editable: [`infografia.html`](infografia.html). Para regenerar el PNG:
 > `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --force-device-scale-factor=2 --screenshot=infografia.png --window-size=1200,1600 infografia.html`
