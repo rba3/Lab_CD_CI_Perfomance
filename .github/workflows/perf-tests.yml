@@ -32,10 +32,12 @@ on:
         default: "no"
   schedule:
     # Todos los dias 13:00 UTC (~07:00 CDMX)
-    - cron: "0 13 * * *"
+      #FR Edit, scheduling for 13 hrs MEX Central Time
+    - cron: "0 7 * * *"
   # Validacion de performance en cada Pull Request hacia main (solo smoke, rapido)
+    #FR Edit, attempt to run on own branch
   pull_request:
-    branches: [main]
+    branches: [FR_Poke]
 
 permissions:
   contents: write   # commitear el reporte generado
