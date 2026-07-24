@@ -1,6 +1,6 @@
 name: Performance PokeAPI (JMeter)
 
-# Se dispara de forma AUTOMATICA (cron diario) y tambien MANUAL (workflow_dispatch)
+## Se dispara de forma AUTOMATICA (cron diario) y tambien MANUAL (workflow_dispatch)
 on:
   workflow_dispatch:
     inputs:
