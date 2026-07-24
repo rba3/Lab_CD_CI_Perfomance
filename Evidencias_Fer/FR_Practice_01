@@ -1,1 +1,22 @@
+1 Primera corrida y lectura de métricas
+BASICO
+
+Objetivo: ejecutar el laboratorio y entender qué significan las métricas.
+
+   - En GitHub, entra a Actions → Performance PokeAPI (JMeter) → Run workflow con scenario = smoke.
+   - Cuando termine, abre el reporte generado en reports/ y la sección "Último reporte" del README.
+
+      Reporte usado: https://github.com/rba3/Lab_CD_CI_Perfomance/actions/runs/30121697595
+
+
+
+   - Identifica y define con tus palabras: p50, p95, p99, throughput y % de error.
+
+      P50: Mayor tiempo de respuesta en una ejecución, considerando el 50% más bajo de los tiempos de respuesta.
+      P95: Mayor tiempo de respuesta en una ejecución, considerando el 90% más bajo de los tiempos de respuesta.
+      P99: Mayor tiempo de respuesta en una ejecución, considerando el 99% más bajo de los tiempos de respuesta.
+      Throughput: Medida de velocidad para proceso de peticiones, comúnmente expresado en peticiones por segundo.
+      % de Error: En prueba de Performance, es el porcentaje de peticiones o transacciones que tuvieron un resultado fallido.
+
+
 
