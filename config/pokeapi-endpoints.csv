@@ -9,3 +9,6 @@ ability-static,/api/v2/ability/static
 berry-cheri,/api/v2/berry/cheri
 move-tackle,/api/v2/move/tackle
 generation-1,/api/v2/generation/1
+pokemon-chikorita,/api/v2/pokemon/chikorita
+move-tackle,/api/v2/move/move/nature-power
+type-fire,/api/v2/type/fairy
