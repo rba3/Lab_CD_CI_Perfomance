@@ -1,0 +1,78 @@
+{
+  "repo": "rba3/Lab_CD_CI_Perfomance",
+  "generated_at": "2026-07-24T18:04:31Z",
+  "totals": {
+    "commits": 11,
+    "contributors": 8,
+    "prs_total": 8,
+    "prs_open": 7,
+    "prs_merged": 0,
+    "prs_closed": 1
+  },
+  "contributors": [
+    {
+      "login": "lrbg",
+      "avatar": "https://avatars.githubusercontent.com/u/7594601?v=4",
+      "url": "https://github.com/lrbg",
+      "commits": 5,
+      "prs_opened": 1,
+      "prs_merged": 0
+    },
+    {
+      "login": "ingseleneolguin-max",
+      "avatar": "https://avatars.githubusercontent.com/u/307775045?v=4",
+      "url": "https://github.com/ingseleneolguin-max",
+      "commits": 4,
+      "prs_opened": 1,
+      "prs_merged": 0
+    },
+    {
+      "login": "lrbg02-ctrl",
+      "avatar": "https://avatars.githubusercontent.com/u/294897464?v=4",
+      "url": "https://github.com/lrbg02-ctrl",
+      "commits": 2,
+      "prs_opened": 0,
+      "prs_merged": 0
+    },
+    {
+      "login": "Fef-Dot-Com",
+      "avatar": "https://avatars.githubusercontent.com/u/307757087?v=4",
+      "url": "https://github.com/Fef-Dot-Com",
+      "commits": 0,
+      "prs_opened": 2,
+      "prs_merged": 0
+    },
+    {
+      "login": "Natalia-Sanchez1305",
+      "avatar": "https://avatars.githubusercontent.com/u/52970678?v=4",
+      "url": "https://github.com/Natalia-Sanchez1305",
+      "commits": 0,
+      "prs_opened": 1,
+      "prs_merged": 0
+    },
+    {
+      "login": "Leinad1408",
+      "avatar": "https://avatars.githubusercontent.com/u/100331776?v=4",
+      "url": "https://github.com/Leinad1408",
+      "commits": 0,
+      "prs_opened": 1,
+      "prs_merged": 0
+    },
+    {
+      "login": "Xoch31416",
+      "avatar": "https://avatars.githubusercontent.com/u/307789381?v=4",
+      "url": "https://github.com/Xoch31416",
+      "commits": 0,
+      "prs_opened": 1,
+      "prs_merged": 0
+    },
+    {
+      "login": "KarlaMirelii",
+      "avatar": "https://avatars.githubusercontent.com/u/38225416?v=4",
+      "url": "https://github.com/KarlaMirelii",
+      "commits": 0,
+      "prs_opened": 1,
+      "prs_merged": 0
+    }
+  ]
+}

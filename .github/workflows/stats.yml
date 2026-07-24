@@ -1,0 +1,42 @@
+name: Estadisticas de colaboracion
+
+# Genera docs/data/stats.json (commits y PRs por colaborador) para el dashboard.
+on:
+  schedule:
+    - cron: "30 13 * * *"   # diario, poco despues de las pruebas de performance
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stats-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Recolectar estadisticas
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python3 scripts/gen_stats.py
+
+      - name: Publicar cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain docs/data/stats.json)" ]; then
+            git add docs/data/stats.json
+            git commit -m "Actualiza estadisticas de colaboracion [skip ci]"
+            git push
+          else
+            echo "Sin cambios en las estadisticas."
+          fi
