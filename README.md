@@ -5,6 +5,15 @@ Laboratorio de **pruebas de performance con Apache JMeter** contra la
 (automatico por cron y manual), un **agente de IA** valida las respuestas y el
 resultado se publica como **reporte Markdown con graficas Mermaid**.
 
+> **Sitio de practicas (GitHub Pages):** https://rba3.github.io/Lab_CD_CI_Perfomance/
+> Manual del equipo colaborador: 8 practicas de performance con JMeter, vision de
+> linea base segun ISO/IEC 25010/25023/25040, 29119, 24765 e ISTQB, y como proyectar
+> de QA a produccion con la Ley Universal de Escalabilidad (USL). Fuente en
+> [`docs/index.html`](docs/index.html).
+>
+> _Nota: para publicar el sitio, el dueno del repositorio debe activar Pages en
+> Settings -> Pages -> Source: Deploy from a branch -> main -> /docs._
+
 ## Infografia
 
 ![Laboratorio de performance con tematica Pokemon](infografia-completa.png)

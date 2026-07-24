@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PokeAPI Perf Lab — Prácticas de performance con JMeter</title>
+<meta name="description" content="Laboratorio de pruebas de performance con Apache JMeter, GitHub Actions y validación por agente de IA. Prácticas guiadas para el equipo colaborador.">
+<style>
+  :root{
+    --amarillo:#FFCB05;
+    --azul:#2A75BB;
+    --azul-osc:#1B2A4A;
+    --rojo:#EE1515;
+    --tinta:#14213d;
+    --bg:#f4f7fb;
+    --panel:#ffffff;
+    --linea:#e2e8f0;
+    --texto:#1f2a44;
+    --suave:#5b6b8c;
+    --verde:#1f9d55;
+    --ambar:#c67a00;
+    --sombra:0 10px 30px rgba(27,42,74,.10);
+    --radio:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0d1424;--panel:#141d33;--linea:#26324f;
+      --texto:#e8edf7;--suave:#9fb0d0;--tinta:#eef2fb;--sombra:0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{--bg:#f4f7fb;--panel:#fff;--linea:#e2e8f0;--texto:#1f2a44;--suave:#5b6b8c;--tinta:#14213d;--sombra:0 10px 30px rgba(27,42,74,.10);}
+  :root[data-theme="dark"]{--bg:#0d1424;--panel:#141d33;--linea:#26324f;--texto:#e8edf7;--suave:#9fb0d0;--tinta:#eef2fb;--sombra:0 10px 30px rgba(0,0,0,.35);}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--texto);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;}
+  a{color:var(--azul);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+
+  /* Hero */
+  header.hero{background:linear-gradient(135deg,var(--amarillo) 0%,#ffd94d 55%,#ffe27a 100%);
+    color:var(--azul-osc);padding:54px 0 46px;border-bottom:6px solid var(--azul);}
+  .badge{display:inline-block;background:var(--azul-osc);color:#fff;font-weight:700;
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:999px;}
+  h1{font-size:clamp(30px,6vw,52px);line-height:1.05;margin:16px 0 6px;font-weight:900;
+    letter-spacing:-.5px;text-shadow:0 2px 0 rgba(255,255,255,.35);}
+  h1 .rojo{color:var(--rojo)}
+  .sub{font-size:clamp(15px,2.4vw,19px);font-weight:600;color:#274063;max-width:640px}
+  .cta{margin-top:22px;display:flex;flex-wrap:wrap;gap:12px}
+  .btn{display:inline-block;font-weight:700;padding:11px 18px;border-radius:12px;border:2px solid var(--azul-osc);
+    background:var(--azul-osc);color:#fff;transition:transform .08s ease}
+  .btn:hover{text-decoration:none;transform:translateY(-2px)}
+  .btn.alt{background:transparent;color:var(--azul-osc)}
+  .btn.rojo{background:var(--rojo);border-color:var(--rojo)}
+
+  /* Secciones */
+  section{padding:44px 0}
+  .kicker{color:var(--rojo);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:13px;margin:0 0 6px}
+  h2{font-size:clamp(22px,4vw,32px);margin:0 0 18px;font-weight:900;color:var(--tinta)}
+  p.lead{color:var(--suave);max-width:760px;margin:0 0 8px}
+
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:22px}
+  .card{background:var(--panel);border:1px solid var(--linea);border-radius:var(--radio);padding:20px;box-shadow:var(--sombra)}
+  .card h3{margin:0 0 6px;font-size:18px;color:var(--tinta)}
+  .card p{margin:0;color:var(--suave);font-size:15px}
+
+  figure.info{margin:26px 0 0;background:var(--panel);border:1px solid var(--linea);border-radius:var(--radio);
+    padding:14px;box-shadow:var(--sombra);text-align:center}
+  figure.info img{max-width:100%;height:auto;border-radius:8px}
+  figure.info figcaption{color:var(--suave);font-size:13px;margin-top:10px}
+
+  /* Prácticas */
+  .practica{background:var(--panel);border:1px solid var(--linea);border-left:6px solid var(--azul);
+    border-radius:var(--radio);padding:22px 24px;margin:16px 0;box-shadow:var(--sombra)}
+  .practica.n2{border-left-color:var(--amarillo)}
+  .practica.n3{border-left-color:var(--rojo)}
+  .pt{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .num{flex:0 0 auto;width:38px;height:38px;border-radius:10px;background:var(--azul);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px}
+  .practica.n2 .num{background:var(--amarillo);color:var(--azul-osc)}
+  .practica.n3 .num{background:var(--rojo)}
+  .practica h3{margin:0;font-size:20px;color:var(--tinta)}
+  .nivel{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    padding:4px 10px;border-radius:999px;border:1.5px solid var(--linea);color:var(--suave)}
+  .nivel.basico{color:var(--verde);border-color:var(--verde)}
+  .nivel.inter{color:var(--ambar);border-color:var(--ambar)}
+  .nivel.avz{color:var(--rojo);border-color:var(--rojo)}
+  .obj{margin:8px 0 12px;color:var(--texto)}
+  .obj b{color:var(--tinta)}
+  .practica ol{margin:6px 0 12px;padding-left:20px;color:var(--texto)}
+  .practica ol li{margin:4px 0}
+  .exito{background:rgba(31,157,85,.08);border:1px solid rgba(31,157,85,.25);border-radius:10px;
+    padding:10px 14px;font-size:14px;color:var(--texto)}
+  .exito b{color:var(--verde)}
+  .nota{margin-top:10px;font-size:13px;color:var(--suave);border-top:1px dashed var(--linea);padding-top:8px}
+  code,kbd{background:rgba(42,117,187,.12);color:var(--azul);padding:1px 6px;border-radius:6px;
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
+  @media (prefers-color-scheme: dark){code,kbd{color:#8fc0ff}}
+  pre{background:var(--azul-osc);color:#e7eefc;border-radius:12px;padding:14px 16px;overflow-x:auto;
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.5}
+
+  table{width:100%;border-collapse:collapse;margin-top:14px;background:var(--panel);
+    border:1px solid var(--linea);border-radius:var(--radio);overflow:hidden}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--linea);font-size:14px}
+  th{background:var(--azul-osc);color:#fff;font-weight:700}
+  td.pass{color:var(--verde);font-weight:700}
+  td.warn{color:var(--ambar);font-weight:700}
+  td.fail{color:var(--rojo);font-weight:700}
+  .tabla-scroll{overflow-x:auto}
+
+  .def{background:linear-gradient(135deg,var(--azul) 0%,#3b8fd6 100%);color:#fff;border-radius:var(--radio);
+    padding:18px 22px;box-shadow:var(--sombra);margin-top:8px}
+  .def b{color:#fff}
+  .def .ref{display:inline-block;margin-top:8px;font-size:12px;font-weight:800;letter-spacing:.08em;
+    text-transform:uppercase;color:#ffe27a}
+  .stdno{display:inline-block;font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;
+    font-weight:800;color:#fff;background:var(--azul);padding:3px 9px;border-radius:6px;margin-bottom:10px}
+  .stdno.g{background:var(--verde)} .stdno.r{background:var(--rojo)} .stdno.y{background:var(--amarillo);color:var(--azul-osc)}
+  .formula{background:var(--azul-osc);color:#eaf1ff;border-radius:14px;padding:22px 18px;text-align:center;
+    box-shadow:var(--sombra);margin:16px 0}
+  .formula .eq{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:clamp(17px,3.4vw,24px);
+    font-weight:700;letter-spacing:.3px}
+  .formula .eq .y{color:var(--amarillo)} .formula .eq .r{color:#ff8a8a}
+  .formula .cap{color:#9fb6dd;font-size:13px;margin-top:10px}
+  .terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:16px}
+  .term{background:var(--panel);border:1px solid var(--linea);border-radius:12px;padding:14px 16px}
+  .term b{color:var(--tinta)} .term .sym{font-family:"SF Mono",ui-monospace,monospace;color:var(--rojo);font-weight:800}
+  td.pass{color:var(--verde);font-weight:700}
+  footer{background:var(--azul-osc);color:#c9d6ee;padding:30px 0;margin-top:20px;font-size:14px}
+  footer a{color:#ffd94d}
+  footer .disc{color:#8ea3c9;font-size:12px;margin-top:10px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">Laboratorio de performance</span>
+    <h1>PokeAPI Perf Lab <span class="rojo">·</span> Prácticas con JMeter</h1>
+    <p class="sub">Pruebas de rendimiento con Apache JMeter contra la PokeAPI, orquestadas por GitHub Actions y validadas por un agente de IA. Este es el manual de prácticas del equipo colaborador.</p>
+    <div class="cta">
+      <a class="btn" href="https://github.com/rba3/Lab_CD_CI_Perfomance">Ver repositorio</a>
+      <a class="btn alt" href="#practicas">Ir a las prácticas</a>
+      <a class="btn rojo" href="https://github.com/rba3/Lab_CD_CI_Perfomance/actions">Abrir Actions</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Qué es este laboratorio</p>
+    <h2>Medir, analizar y mejorar el rendimiento en cada corrida</h2>
+    <p class="lead">El laboratorio ejecuta planes de JMeter (smoke y load) contra endpoints de la PokeAPI, extrae métricas (p50, p95, p99, throughput, % de error), un agente de IA emite un veredicto PASS / WARN / FAIL en español y el resultado se publica como reporte con gráficas. Todo corre en GitHub Actions, sin infraestructura propia.</p>
+    <div class="grid3">
+      <div class="card"><h3>Motor de carga</h3><p>Apache JMeter 5.6.3 con planes parametrizados y Response Assertions (HTTP 200 + cuerpo JSON).</p></div>
+      <div class="card"><h3>Orquestación</h3><p>GitHub Actions por cron diario y ejecución manual, con caché de JMeter y permisos mínimos.</p></div>
+      <div class="card"><h3>Validación con IA</h3><p>Agente de GitHub Models que analiza las métricas contra los SLOs y da veredicto con recomendaciones.</p></div>
+    </div>
+    <figure class="info">
+      <img src="infografia-completa.png" alt="Infografía del laboratorio de performance con temática Pokémon: arquitectura, pipeline, flujo de datos, cierre de ciclo y criterios de éxito">
+      <figcaption>Arquitectura y flujo completo del laboratorio. Homenaje no oficial a la franquicia Pokémon.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section style="background:linear-gradient(180deg,transparent,rgba(42,117,187,.06))">
+  <div class="wrap">
+    <p class="kicker">Antes de empezar</p>
+    <h2>Preparación del entorno</h2>
+    <p class="lead">Para la mayoría de las prácticas basta con GitHub (ejecutar el workflow y leer el reporte). Para las prácticas locales necesitas Apache JMeter y Python 3 instalados.</p>
+    <pre># 1. Clonar el repositorio
+git clone https://github.com/rba3/Lab_CD_CI_Perfomance.git
+cd Lab_CD_CI_Perfomance
+
+# 2. Correr un smoke local (requiere JMeter en el PATH)
+jmeter -n -t tests/smoke.jmx -Jendpoints=config/pokeapi-endpoints.csv \
+  -l results/smoke.jtl -e -o reports/html-smoke
+
+# 3. Generar métricas y reporte
+python3 scripts/parse_results.py results/smoke.jtl smoke reports/metrics-smoke.json
+python3 scripts/gen_report.py --out reports/report-local.md --date "local" \
+  --metrics reports/metrics-smoke.json</pre>
+    <p class="nota" style="margin-top:14px">Regla de convivencia: la PokeAPI es pública. Trabaja siempre con carga moderada y con think time. No subas los umbrales de <code>load</code> sin acordarlo con el equipo.</p>
+  </div>
+</section>
+
+<section id="practicas">
+  <div class="wrap">
+    <p class="kicker">Manual del colaborador</p>
+    <h2>Prácticas de performance con JMeter</h2>
+    <p class="lead">Ocho prácticas progresivas, de lo básico a lo avanzado. Cada una tiene un objetivo, los pasos y un criterio de éxito claro. Trabaja en una rama y abre un Pull Request con tu evidencia.</p>
+
+    <!-- P1 -->
+    <div class="practica">
+      <div class="pt"><span class="num">1</span><h3>Primera corrida y lectura de métricas</h3><span class="nivel basico">Básico</span></div>
+      <p class="obj"><b>Objetivo:</b> ejecutar el laboratorio y entender qué significan las métricas.</p>
+      <ol>
+        <li>En GitHub, entra a <code>Actions</code> → <code>Performance PokeAPI (JMeter)</code> → <code>Run workflow</code> con <code>scenario = smoke</code>.</li>
+        <li>Cuando termine, abre el reporte generado en <code>reports/</code> y la sección "Último reporte" del README.</li>
+        <li>Identifica y define con tus palabras: <code>p50</code>, <code>p95</code>, <code>p99</code>, <code>throughput</code> y <code>% de error</code>.</li>
+      </ol>
+      <p class="exito"><b>Criterio de éxito:</b> puedes explicar la diferencia entre p95 y promedio, y decir qué endpoint fue el más lento en tu corrida.</p>
+    </div>
+
+    <!-- P2 -->
+    <div class="practica">
+      <div class="pt"><span class="num">2</span><h3>Agregar un endpoint al plan</h3><span class="nivel basico">Básico</span></div>
+      <p class="obj"><b>Objetivo:</b> extender la cobertura sin tocar el <code>.jmx</code>.</p>
+      <ol>
+        <li>Edita <code>config/pokeapi-endpoints.csv</code> y agrega una fila <code>label,path</code> (por ejemplo <code>item,/api/v2/item/1</code>).</li>
+        <li>Corre un <code>smoke</code> y confirma que el nuevo endpoint aparece como sampler propio en las métricas.</li>
+      </ol>
+      <p class="exito"><b>Criterio de éxito:</b> el reporte muestra métricas separadas para tu endpoint nuevo.</p>
+      <p class="nota">Pista: el nombre del sampler usa <code>${label}</code>, por eso cada fila del CSV se agrupa por separado.</p>
+    </div>
+
+    <!-- P3 -->
+    <div class="practica n2">
+      <div class="pt"><span class="num">3</span><h3>Parametrizar la carga</h3><span class="nivel inter">Intermedio</span></div>
+      <p class="obj"><b>Objetivo:</b> observar cómo cambia la latencia al variar la concurrencia.</p>
+      <ol>
+        <li>Lanza el workflow manual con <code>scenario = load</code> y ajusta <code>threads</code>, <code>rampup</code>, <code>duration</code> y <code>think</code>.</li>
+        <li>Corre al menos dos configuraciones distintas y anota el <code>p95</code> de cada una.</li>
+        <li>Explica por qué sube o baja el p95 al cambiar los hilos o el think time.</li>
+      </ol>
+      <p class="exito"><b>Criterio de éxito:</b> una mini tabla comparando 2+ corridas (threads vs p95 vs throughput) con tu conclusión.</p>
+      <p class="nota">Recuerda la regla de convivencia: nada de cargas agresivas contra la API pública.</p>
+    </div>
+
+    <!-- P4 -->
+    <div class="practica n2">
+      <div class="pt"><span class="num">4</span><h3>Endurecer las validaciones</h3><span class="nivel inter">Intermedio</span></div>
+      <p class="obj"><b>Objetivo:</b> hacer que la prueba falle cuando la respuesta no es la esperada, no solo por HTTP 200.</p>
+      <ol>
+        <li>En el plan <code>.jmx</code>, agrega o ajusta una Response Assertion para validar un campo del JSON (por ejemplo que el cuerpo contenga <code>"name"</code>).</li>
+        <li>Corre un <code>smoke</code> y confirma que sigue en verde con la validación más estricta.</li>
+        <li>Provoca temporalmente un fallo (por ejemplo apuntando a un path inválido) para ver la aserción marcar error.</li>
+      </ol>
+      <p class="exito"><b>Criterio de éxito:</b> demuestras una corrida en verde con la validación fuerte y una en rojo cuando la respuesta no cumple.</p>
+    </div>
+
+    <!-- P5 -->
+    <div class="practica n2">
+      <div class="pt"><span class="num">5</span><h3>El gate de Pull Request</h3><span class="nivel inter">Intermedio</span></div>
+      <p class="obj"><b>Objetivo:</b> entender cómo el performance protege la rama principal.</p>
+      <ol>
+        <li>Crea una rama, haz un cambio pequeño y abre un Pull Request hacia <code>main</code>.</li>
+        <li>Observa que el check <code>perf</code> corre solo el escenario <code>smoke</code>.</li>
+        <li>Explica por qué en un PR el workflow no commitea el reporte ni abre issues.</li>
+      </ol>
+      <p class="exito"><b>Criterio de éxito:</b> tu PR muestra el check <code>perf</code> en verde y explicas la diferencia con la corrida por cron.</p>
+      <p class="nota">Disponible en el repositorio con cierre de ciclo (<code>rba3/Lab_CD_CI_Perfomance</code>).</p>
+    </div>
+
+    <!-- P6 -->
+    <div class="practica n3">
+      <div class="pt"><span class="num">6</span><h3>Cierre de ciclo: issue automático</h3><span class="nivel avz">Avanzado</span></div>
+      <p class="obj"><b>Objetivo:</b> ver el flujo DevOps completo cuando el rendimiento se degrada.</p>
+      <ol>
+        <li>Lanza el workflow manual con el input <code>simular_fallo = WARN</code> (o <code>FAIL</code>).</li>
+        <li>Verifica que se abre un issue automático con label <code>performance</code>, las métricas y el análisis del agente de IA.</li>
+        <li>Lee el análisis del agente y propón, en un comentario del issue, qué revisarías primero.</li>
+      </ol>
+      <p class="exito"><b>Criterio de éxito:</b> existe un issue generado por la corrida y tu comentario con un plan de diagnóstico.</p>
+      <p class="nota">Disponible en el repositorio con cierre de ciclo (<code>rba3/Lab_CD_CI_Perfomance</code>). El input <code>simular_fallo</code> existe porque la PokeAPI casi siempre da PASS.</p>
+    </div>
+
+    <!-- P7 -->
+    <div class="practica n3">
+      <div class="pt"><span class="num">7</span><h3>Ajustar los SLOs</h3><span class="nivel avz">Avanzado</span></div>
+      <p class="obj"><b>Objetivo:</b> calibrar cuándo el laboratorio debe alertar.</p>
+      <ol>
+        <li>Revisa los umbrales de PASS / WARN / FAIL (paso "Armar prompt para el agente" y el fallback por umbrales del workflow).</li>
+        <li>Propón un cambio justificado (por ejemplo bajar el p95 de FAIL) y documéntalo.</li>
+        <li>Demuestra con una corrida que el nuevo umbral cambia el veredicto como esperabas.</li>
+      </ol>
+      <p class="exito"><b>Criterio de éxito:</b> un PR que cambia un umbral, con la evidencia de la corrida antes y después.</p>
+    </div>
+
+    <!-- P8 -->
+    <div class="practica n3">
+      <div class="pt"><span class="num">8</span><h3>Reto: diseña tu propio plan</h3><span class="nivel avz">Avanzado</span></div>
+      <p class="obj"><b>Objetivo:</b> aplicar todo lo aprendido creando un escenario nuevo.</p>
+      <ol>
+        <li>Crea un plan <code>.jmx</code> nuevo (por ejemplo un spike test con subida rápida de hilos) reutilizando el CSV de endpoints.</li>
+        <li>Intégralo como opción del workflow y documenta cómo correrlo.</li>
+        <li>Entrega un breve reporte con tus hallazgos: qué observaste y qué recomendarías.</li>
+      </ol>
+      <p class="exito"><b>Criterio de éxito:</b> un plan ejecutable en el laboratorio y un reporte con conclusiones defendibles.</p>
+    </div>
+  </div>
+</section>
+
+<section id="baseline" style="background:linear-gradient(180deg,rgba(42,117,187,.06),transparent)">
+  <div class="wrap">
+    <p class="kicker">Marco normativo</p>
+    <h2>Visión de línea base</h2>
+    <p class="lead">La <b>línea base</b> es la corrida de referencia contra la que se comparan las siguientes: si una medición nueva se desvía de forma significativa, es un hallazgo. El laboratorio fundamenta esa línea base en estándares ISO/IEC e ISTQB.</p>
+
+    <div class="def">
+      <b>Línea base (baseline):</b> conjunto de valores de rendimiento medidos y acordados como referencia formal. Toda corrida posterior se evalúa contra ella para detectar mejoras o regresiones.
+      <span class="ref">ISO/IEC/IEEE 24765 · vocabulario</span>
+    </div>
+
+    <div class="grid3" style="margin-top:22px">
+      <div class="card"><span class="stdno">ISO/IEC 25010</span><h3>Modelo de calidad</h3><p>Qué medimos: la característica <b>Eficiencia de desempeño</b> — comportamiento temporal, utilización de recursos y capacidad.</p></div>
+      <div class="card"><span class="stdno g">ISO/IEC 25023</span><h3>Medidas de calidad</h3><p>Cómo lo medimos: tiempo de respuesta (p50 / p95 / p99), throughput y % de error. Son las métricas del reporte.</p></div>
+      <div class="card"><span class="stdno y">ISO/IEC 25040</span><h3>Proceso de evaluación</h3><p>Cómo evaluamos: requisitos → especificación → diseño → ejecución → conclusión. El pipeline lo automatiza.</p></div>
+      <div class="card"><span class="stdno r">ISO/IEC/IEEE 29119</span><h3>Proceso de pruebas</h3><p>Cómo lo documentamos: planeación, diseño, ejecución y reporte. Los planes <code>.jmx</code> y el reporte son los artefactos.</p></div>
+      <div class="card"><span class="stdno">ISO/IEC/IEEE 24765</span><h3>Vocabulario común</h3><p>Lenguaje compartido: línea base, prueba de rendimiento, defecto, criterio de aceptación.</p></div>
+      <div class="card"><span class="stdno g">ISTQB</span><h3>Método</h3><p>La prueba de rendimiento es <b>no funcional</b>; la línea base es el criterio de comparación, con criterios de entrada y salida definidos.</p></div>
+    </div>
+
+    <h3 style="margin:30px 0 4px;color:var(--tinta);font-size:20px">Línea base actual del laboratorio</h3>
+    <p class="lead">Valores de referencia de las últimas corridas en verde (0% de error). Cada corrida futura se compara contra estos números.</p>
+    <div class="tabla-scroll">
+      <table>
+        <thead><tr><th>Escenario</th><th>Muestras</th><th>p95 (ms)</th><th>Throughput</th><th>% error</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr><td><b>smoke</b> — 3 usuarios / 30 s</td><td>160</td><td>27</td><td>5.5 req/s</td><td class="pass">0.0%</td><td class="pass">PASS</td></tr>
+          <tr><td><b>load</b> — 50 usuarios / 120 s</td><td>16 812</td><td>16</td><td>140 req/s</td><td class="pass">0.0%</td><td class="pass">PASS</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">Mapeo 25010 / 25023: p95 = comportamiento temporal · throughput = capacidad · % de error = fiabilidad de la respuesta.</p>
+
+    <h3 style="margin:30px 0 4px;color:var(--tinta);font-size:20px">Criterios de entrada y salida <span style="font-weight:600;color:var(--suave);font-size:15px">(ISTQB · 29119)</span></h3>
+    <div class="grid3" style="margin-top:14px">
+      <div class="card"><h3>Entrada</h3><p>Plan <code>.jmx</code> válido, endpoints en el CSV y ambiente de Actions disponible.</p></div>
+      <div class="card"><h3>Salida</h3><p>Corrida completa, métricas generadas y veredicto del agente emitido.</p></div>
+      <div class="card"><h3>Comparación</h3><p>Se contrasta contra la línea base y los SLOs; una desviación dispara el cierre de ciclo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="usl">
+  <div class="wrap">
+    <p class="kicker">Escalabilidad entre ambientes</p>
+    <h2>Proyectar de QA a producción con la USL</h2>
+    <p class="lead">Cuando QA y producción <b>no están homologados</b> (prod tiene más CPU y RAM), no basta con extrapolar linealmente. La <b>Ley Universal de Escalabilidad</b> (USL, Neil Gunther) modela cómo escala realmente el throughput al agregar recursos, y permite proyectar prod a partir de mediciones en QA.</p>
+
+    <div class="formula">
+      <div class="eq">C(N) = N / ( 1 + <span class="y">α</span>(N−1) + <span class="r">β</span>·N(N−1) )</div>
+      <div class="cap">C(N): capacidad relativa (throughput) con N unidades &nbsp;·&nbsp; N: nodos, vCPUs o concurrencia</div>
+    </div>
+
+    <div class="terms">
+      <div class="term"><span class="sym">α</span> <b>Contención</b><br>Parte serializada que no paraleliza (locks, recurso único). Aplana la curva.</div>
+      <div class="term"><span class="sym">β</span> <b>Coherencia</b><br>Costo de coordinar nodos (sincronización, red). Con β&gt;0 el rendimiento se degrada tras el pico.</div>
+      <div class="term"><span class="sym">N*</span> <b>Punto óptimo</b><br>N* = √((1−α)/β). Más allá de N*, agregar recursos <b>empeora</b> el throughput.</div>
+    </div>
+
+    <h3 style="margin:30px 0 4px;color:var(--tinta);font-size:20px">Cómo aplicarla cuando QA ≠ prod</h3>
+    <div class="practica" style="border-left-color:var(--azul)">
+      <ol>
+        <li><b>Barrido en QA.</b> Corre <code>load</code> variando N (por ejemplo 5, 10, 20, 40, 80 usuarios o vCPUs) y registra el throughput X(N) de cada punto. Mínimo 5–6 puntos.</li>
+        <li><b>Ajusta la curva.</b> Haz una regresión USL sobre esos puntos para obtener <span class="sym" style="color:var(--rojo)">α</span> y <span class="sym" style="color:var(--rojo)">β</span>. La <b>forma</b> de la curva describe el software y la arquitectura, no el hardware: por eso α y β se conservan entre ambientes.</li>
+        <li><b>Homologa la base.</b> Mide la capacidad de <b>un</b> nodo o core en cada ambiente con un micro-benchmark de 1 hilo: obtienes C1<sub>QA</sub> y C1<sub>prod</sub>. El factor de hardware es C1<sub>prod</sub> / C1<sub>QA</sub>.</li>
+        <li><b>Proyecta prod.</b> Aplica <code>X_prod(N) ≈ C1_prod × C(N)</code>: escalas la capacidad base al hardware de prod y usas la misma curva (α, β) medida en QA. Así estimas throughput, N óptimo y punto de saturación de prod sin tenerlo homologado.</li>
+      </ol>
+      <p class="exito"><b>Entregable:</b> α, β y N* estimados, más la curva proyectada de prod con su throughput máximo.</p>
+      <p class="nota">Límite del modelo (principio ISTQB: probar depende del contexto): la USL asume nodos homogéneos y misma arquitectura de software. Si prod cambia topología (réplicas de BD, caché, red), α y β pueden cambiar. Valida siempre con <b>al menos un punto real</b> en prod antes de dar la proyección por firme.</p>
+    </div>
+  </div>
+</section>
+
+<section style="background:linear-gradient(180deg,rgba(238,21,21,.05),transparent)">
+  <div class="wrap">
+    <p class="kicker">Referencia rápida</p>
+    <h2>SLOs y escenarios</h2>
+    <div class="tabla-scroll">
+      <table>
+        <thead><tr><th>Métrica</th><th>PASS</th><th>WARN</th><th>FAIL</th></tr></thead>
+        <tbody>
+          <tr><td>% de error</td><td class="pass">&lt; 0.1%</td><td class="warn">0.1% – 1%</td><td class="fail">&gt; 1%</td></tr>
+          <tr><td>Latencia p95</td><td class="pass">&lt; 800 ms</td><td class="warn">800 – 1500 ms</td><td class="fail">&gt; 1500 ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tabla-scroll">
+      <table>
+        <thead><tr><th>Escenario</th><th>Usuarios</th><th>Duración</th><th>Propósito</th></tr></thead>
+        <tbody>
+          <tr><td><b>smoke</b></td><td>3</td><td>30 s</td><td>Confirmar que la API responde bien con carga mínima</td></tr>
+          <tr><td><b>load</b></td><td>50</td><td>120 s</td><td>Carga sostenida moderada (API pública: no abusar)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <strong>PokeAPI Perf Lab</strong> — Medir. Analizar. Mejorar.<br>
+    Repositorio: <a href="https://github.com/rba3/Lab_CD_CI_Perfomance">rba3/Lab_CD_CI_Perfomance</a> ·
+    Actions: <a href="https://github.com/rba3/Lab_CD_CI_Perfomance/actions">ejecutar workflow</a>
+    <p class="disc">Este laboratorio consume la API pública de PokeAPI de forma respetuosa (carga moderada + think time). Proyecto educativo, no afiliado ni aprobado por The Pokémon Company ni por PokeAPI. Homenaje no oficial.</p>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    try{
+      var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)');
+      // respeta el tema del sistema; el toggle manual no es necesario aquí
+    }catch(e){}
+  })();
+</script>
+</body>
+</html>
