@@ -1,0 +1,54 @@
+2 Agregar un endpoint al plan
+BASICO
+
+Objetivo: extender la cobertura sin tocar el .jmx.
+
+    Edita config/pokeapi-endpoints.csv y agrega una fila label,path (por ejemplo item,/api/v2/item/1).
+    Corre un smoke y confirma que el nuevo endpoint aparece como sampler propio en las métricas.
+
+        Ejecución: https://github.com/rba3/Lab_CD_CI_Perfomance/actions/runs/30135324862
+        Agregados:
+      "pokemon-chikorita": {
+      "samples": 12,
+      "errors": 0,
+      "error_pct": 0.0,
+      "avg_ms": 12.6,
+      "min_ms": 9,
+      "max_ms": 19,
+      "p50_ms": 12.0,
+      "p90_ms": 14.0,
+      "p95_ms": 16.2,
+      "p99_ms": 18.5,
+      "throughput_rps": 0.5,
+      "duration_s": 24.2
+    }
+
+    "move-nature-power": {
+      "samples": 12,
+      "errors": 0,
+      "error_pct": 0.0,
+      "avg_ms": 8.8,
+      "min_ms": 7,
+      "max_ms": 11,
+      "p50_ms": 9.0,
+      "p90_ms": 10.0,
+      "p95_ms": 10.4,
+      "p99_ms": 10.9,
+      "throughput_rps": 0.49,
+      "duration_s": 24.5
+    }
+
+    "type-fairy": {
+      "samples": 12,
+      "errors": 0,
+      "error_pct": 0.0,
+      "avg_ms": 15.3,
+      "min_ms": 6,
+      "max_ms": 98,
+      "p50_ms": 8.0,
+      "p90_ms": 9.9,
+      "p95_ms": 49.6,
+      "p99_ms": 88.3,
+      "throughput_rps": 0.49,
+      "duration_s": 24.5
+    }
