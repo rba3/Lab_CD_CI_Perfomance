@@ -1,65 +1,31 @@
 ## 🔮 Predicciones
 
-⚠️ **Tendencia de degradación detectada** (LOW risk)
-- Pendiente: +0.63ms/corrida
-- P95 actual: 112.8ms
-- Días hasta WARN: ~1085
-- Días hasta FAIL: ~2190
-- Confianza: 60%
-
-## 💡 Recomendaciones Prioritarias
-
-🔴 **Tasa de error global crítica**
-   - Posibles causas: Problema sistémico (BD caída, network desconectada), PokeAPI inestable
-   - Acciones: Revisar estado de PokeAPI (status.pokeapi.co), Revisar logs de la corrida
-
-## 🎯 Causa Raíz Identificada
-
-**Latencia inconsistente (outliers)**
-- Causa probable: Spikes de latencia, posible GC o context switching
-- Confianza: 75%
-- Evidencia:
-  - p50 (9.0ms) mucho menor que p95 (112.8ms)
-  - Diferencia de 3x+ indica distribución anómala
+⚠️ **Tendencia de degradación detectada** (MEDIUM risk)
+- Pendiente: +23.95ms/corrida
+- P95 actual: 16.4ms
+- Días hasta WARN: ~32
+- Días hasta FAIL: ~61
+- Confianza: 80%
 
 
 <!-- JSON Analysis -->
 {
   "predictions": {
     "prediction": "DEGRADATION_TREND",
-    "confidence": 60,
-    "slope_ms_per_run": 0.63,
-    "current_p95": 112.8,
-    "days_to_warn": 1085,
-    "days_to_fail": 2190,
-    "risk_level": "LOW"
+    "confidence": 80,
+    "slope_ms_per_run": 23.95,
+    "current_p95": 16.4,
+    "days_to_warn": 32,
+    "days_to_fail": 61,
+    "risk_level": "MEDIUM"
   },
-  "recommendations": [
-    {
-      "issue": "Tasa de error global cr\u00edtica",
-      "severity": "CRITICAL",
-      "causes": [
-        "Problema sist\u00e9mico (BD ca\u00edda, network desconectada)",
-        "PokeAPI inestable",
-        "Assertions muy restrictivas"
-      ],
-      "fixes": [
-        "Revisar estado de PokeAPI (status.pokeapi.co)",
-        "Revisar logs de la corrida",
-        "Considerar relajar assertions",
-        "Abrir issue en PokeAPI si es su problema"
-      ]
-    }
-  ],
+  "recommendations": [],
   "correlations": {},
   "root_cause": {
-    "issue": "Latencia inconsistente (outliers)",
-    "root_cause": "Spikes de latencia, posible GC o context switching",
-    "confidence": 75,
-    "evidence": [
-      "p50 (9.0ms) mucho menor que p95 (112.8ms)",
-      "Diferencia de 3x+ indica distribuci\u00f3n an\u00f3mala"
-    ]
+    "issue": null,
+    "root_cause": null,
+    "confidence": 0,
+    "evidence": []
   },
-  "timestamp": "2026-07-24T23:53:29.610237"
+  "timestamp": "2026-07-25T00:03:14.011039"
 }
