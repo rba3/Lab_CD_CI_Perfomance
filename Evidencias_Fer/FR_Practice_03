@@ -1,0 +1,16 @@
+3 Parametrizar la carga
+INTERMEDIO
+
+Objetivo: observar cómo cambia la latencia al variar la concurrencia.
+
+    Lanza el workflow manual con scenario = load y ajusta threads, rampup, duration y think.
+    Corre al menos dos configuraciones distintas y anota el p95 de cada una.
+             Ejecuciones Load hechas:
+                    https://github.com/rba3/Lab_CD_CI_Perfomance/actions/runs/30136393864
+                              P95:    12.0ms
+                    https://github.com/rba3/Lab_CD_CI_Perfomance/actions/runs/30136717108
+                              P95:    23.0ms
+
+ Explica por qué sube o baja el p95 al cambiar los hilos o el think time.
+            Cambiar las especificaciones de la prueba a lanzar varía la carga que se envía a PokeAPI.
+            El segundo escenario lanza una mayor carga por un mayor periodo de tiempo, lo cual estresa más las API's e incrementa los tiempos.
