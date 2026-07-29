@@ -1,0 +1,11 @@
+4Endurecer las validaciones
+INTERMEDIO
+
+Objetivo: hacer que la prueba falle cuando la respuesta no es la esperada, no solo por HTTP 200.
+
+    En el plan .jmx, agrega o ajusta una Response Assertion para validar un campo del JSON (por ejemplo que el cuerpo contenga "name").
+          Agregada aserción para "language:"
+    Corre un smoke y confirma que sigue en verde con la validación más estricta.
+          [Pendiente]
+    Provoca temporalmente un fallo (por ejemplo apuntando a un path inválido) para ver la aserción marcar error.
+          [Pendiente]
