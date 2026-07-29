@@ -89,11 +89,11 @@
             <intProp name="Assertion.test_type">2</intProp>
           </ResponseAssertion>
           <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Body contains language" enabled="true">
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Body contains name" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="1">language</stringProp>
+              <stringProp name="1">name</stringProp>
             </collectionProp>
-            <stringProp name="Assertion.custom_message">Se esperaba "language" en el cuerpo</stringProp>
+            <stringProp name="Assertion.custom_message">Se esperaba "name" en el cuerpo</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
             <boolProp name="Assertion.assume_success">false</boolProp>
             <intProp name="Assertion.test_type">2</intProp>
