@@ -8,4 +8,6 @@ Objetivo: hacer que la prueba falle cuando la respuesta no es la esperada, no so
     Corre un smoke y confirma que sigue en verde con la validación más estricta.
           [Pendiente]
     Provoca temporalmente un fallo (por ejemplo apuntando a un path inválido) para ver la aserción marcar error.
-          [Pendiente]
+          Se pudo aserción de "language" no aparece como campo en todas las respuestas.
+            Link de Run: https://github.com/rba3/Lab_CD_CI_Perfomance/actions/runs/30411113179
+            Tiene 47.2% de tasa de error.
