@@ -6,8 +6,10 @@ Objetivo: hacer que la prueba falle cuando la respuesta no es la esperada, no so
     En el plan .jmx, agrega o ajusta una Response Assertion para validar un campo del JSON (por ejemplo que el cuerpo contenga "name").
           Agregada aserción para "language:"
     Corre un smoke y confirma que sigue en verde con la validación más estricta.
-          [Pendiente]
+          Se pudo aserción de "name" aparece como campo en todas las respuestas.
+            Link de Run: https://github.com/rba3/Lab_CD_CI_Perfomance/actions/runs/30411688651
+            Tasa de error de 0%.
     Provoca temporalmente un fallo (por ejemplo apuntando a un path inválido) para ver la aserción marcar error.
-          Se pudo aserción de "language" no aparece como campo en todas las respuestas.
+          Se pudo aserción de "language" NO aparece como campo en todas las respuestas.
             Link de Run: https://github.com/rba3/Lab_CD_CI_Perfomance/actions/runs/30411113179
             Tiene 47.2% de tasa de error.
