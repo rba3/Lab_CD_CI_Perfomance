@@ -125,9 +125,9 @@ jobs:
         run: |
           {
             echo "Analiza estos resultados de una prueba de performance JMeter contra PokeAPI."
-            echo "SLOs de referencia: error < 1%, p95 < 800 ms."
+            echo "SLOs de referencia: error < 0.5%, p95 < 800 ms."
             echo "Responde en espanol. La PRIMERA palabra debe ser exactamente PASS, WARN o FAIL."
-            echo "Luego 2-4 puntos con hallazgos y recomendaciones concretas. Se breve."
+            echo "Luego 4 puntos con hallazgos y recomendaciones concretas. Se breve."
             echo ""
             echo "=== METRICAS (JSON) ==="
             cat reports/metrics-*.json
