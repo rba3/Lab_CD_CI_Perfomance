@@ -1,0 +1,14 @@
+6 Cierre de ciclo: issue automático
+AVANZADO
+
+Objetivo: ver el flujo DevOps completo cuando el rendimiento se degrada.
+
+    Lanza el workflow manual con el input simular_fallo = WARN (o FAIL).
+              Run con Fallo usada: https://github.com/rba3/Lab_CD_CI_Perfomance/actions/runs/30590458105
+    Verifica que se abre un issue automático con label performance, las métricas y el análisis del agente de IA.
+              Issue: https://github.com/rba3/Lab_CD_CI_Perfomance/issues/18
+    Lee el análisis del agente y propón, en un comentario del issue, qué revisarías primero.
+              Con base en el formato del issue, usaría esta prioridad para una revisión oportuna:
+                  1.- P95 alto
+                  2.- Porcentajes de Errores
+                  3.- Evidencias
