@@ -157,8 +157,8 @@ jobs:
             worst=$(jq -s 'map(.overall // {}) | {err: (map(.error_pct // 0) | max), p95: (map(.p95_ms // 0) | max)}' reports/metrics-*.json)
             err=$(echo "$worst" | jq '.err'); p95=$(echo "$worst" | jq '.p95')
             level=PASS
-            awk "BEGIN{exit !($err>1 || $p95>1500)}" && level=FAIL
-            [ "$level" = "PASS" ] && awk "BEGIN{exit !($err>0.1 || $p95>800)}" && level=WARN
+            awk "BEGIN{exit !($err>0.5 || $p95>1500)}" && level=FAIL
+            [ "$level" = "PASS" ] && awk "BEGIN{exit !($err>0.05 || $p95>800)}" && level=WARN
             printf '%s (fallback por umbrales)\n\n- Error maximo: %s%%\n- p95 maximo: %s ms\n' "$level" "$err" "$p95" > verdict.md
           fi
           cat verdict.md
