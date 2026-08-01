@@ -255,7 +255,7 @@ jobs:
             echo "## Resultado de performance: $LEVEL"
             echo ""
             echo "La prueba de carga contra PokeAPI arrojo un veredicto **$LEVEL**."
-            echo "SLOs de referencia: error < 1%, p95 < 800 ms."
+            echo "SLOs de referencia: error < 0.5%, p95 < 800 ms."
             echo ""
             echo "- Fecha: $STAMP"
             echo "- Corrida: $RUN_URL"
