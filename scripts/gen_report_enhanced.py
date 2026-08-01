@@ -91,7 +91,7 @@ def generate_report(
     p99_ms = overall.get("p99_ms", 0)
     throughput = overall.get("throughput", 0)
     
-    status_error = "✅ PASS" if error_pct < 0.1 else "⚠️ WARN" if error_pct < 1 else "❌ FAIL"
+    status_error = "✅ PASS" if error_pct < 0.05 else "⚠️ WARN" if error_pct < 1 else "❌ FAIL"
     status_p95 = "✅ PASS" if p95_ms < 800 else "⚠️ WARN" if p95_ms < 1500 else "❌ FAIL"
     
     report.append(f"| Error Rate | {error_pct}% | < 0.1% | {status_error} |")
