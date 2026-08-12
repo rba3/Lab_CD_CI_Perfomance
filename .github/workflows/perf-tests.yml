@@ -7,7 +7,7 @@ on:
       scenario:
         description: "Escenario a ejecutar"
         type: choice
-        options: [both, smoke, load]
+        options: [both, smoke, load, spike]
         default: both
       threads:
         description: "Usuarios concurrentes (vacio = default del plan)"
@@ -106,6 +106,7 @@ jobs:
           case "$SCENARIO" in
             smoke) run_one smoke ;;
             load)  run_one load ;;
+            spike) run_one spike ;;
             both)  run_one smoke; run_one load ;;
           esac
 
