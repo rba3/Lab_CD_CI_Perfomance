@@ -1,38 +1,31 @@
 ## 🔮 Predicciones
 
-✓ STABLE
-
-## 🎯 Causa Raíz Identificada
-
-**Latencia inconsistente (outliers)**
-- Causa probable: Spikes de latencia, posible GC o context switching
-- Confianza: 75%
-- Evidencia:
-  - p50 (98.0ms) mucho menor que p95 (541.4ms)
-  - Diferencia de 3x+ indica distribución anómala
+⚠️ **Tendencia de degradación detectada** (HIGH risk)
+- Pendiente: +132.85ms/corrida
+- P95 actual: 31.0ms
+- Días hasta WARN: ~5
+- Días hasta FAIL: ~11
+- Confianza: 80%
 
 
 <!-- JSON Analysis -->
 {
   "predictions": {
-    "prediction": "STABLE",
-    "confidence": 0,
-    "slope_ms_per_run": -0.25,
-    "current_p95": 541.4,
-    "days_to_warn": null,
-    "days_to_fail": null,
-    "risk_level": "LOW"
+    "prediction": "DEGRADATION_TREND",
+    "confidence": 80,
+    "slope_ms_per_run": 132.85,
+    "current_p95": 31.0,
+    "days_to_warn": 5,
+    "days_to_fail": 11,
+    "risk_level": "HIGH"
   },
   "recommendations": [],
   "correlations": {},
   "root_cause": {
-    "issue": "Latencia inconsistente (outliers)",
-    "root_cause": "Spikes de latencia, posible GC o context switching",
-    "confidence": 75,
-    "evidence": [
-      "p50 (98.0ms) mucho menor que p95 (541.4ms)",
-      "Diferencia de 3x+ indica distribuci\u00f3n an\u00f3mala"
-    ]
+    "issue": null,
+    "root_cause": null,
+    "confidence": 0,
+    "evidence": []
   },
-  "timestamp": "2026-08-12T14:12:41.910406"
+  "timestamp": "2026-08-13T14:14:38.101848"
 }
