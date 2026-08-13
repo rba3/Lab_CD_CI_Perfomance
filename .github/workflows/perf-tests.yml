@@ -78,6 +78,44 @@ jobs:
           wget -q "https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz"
           tar -xzf "apache-jmeter-${JMETER_VERSION}.tgz"
 
+      - name: Instalar Plugin para Custom Thread Group
+        run: |
+         set -e
+         JMETER_DIR="apache-jmeter-${JMETER_VERSION}"
+         PLUGIN_MANAGER_URL="https://jmeter-plugins.org/get/"
+         PLUGIN_MANAGER_JAR="$JMETER_DIR/lib/ext/jmeter-plugins-manager.jar"
+         PLUGIN_ID="jpgc-casutg"
+
+         # Descarga plugin manager 
+         if [ ! -f "$PLUGIN_MANAGER_JAR" ]; then
+         echo "Downloading Plugins Manager..."
+         wget -qO /tmp/jmeter-plugins-manager.jar "$PLUGIN_MANAGER_URL"
+         mv /tmp/jmeter-plugins-manager.jar "$PLUGIN_MANAGER_JAR"
+         fi
+
+         # Busca si clase UltimateThreadGroup está agregada
+         if find "$JMETER_DIR/lib/ext" -name '*.jar' -print0 | xargs -0 -n1 jar tf 2>/dev/null | grep -q 'kg/apc/jmeter/threads/UltimateThreadGroup.class'; then
+         echo "CUSTOM_THREAD_GROUPS_OK=true" >> "$GITHUB_ENV"
+         echo "Custom Thread Groups already present"
+         exit 0
+         fi
+
+         echo "No se halla Custom Thread Groups; tratando de instalar mediante Plugins Manager CLI..."
+
+         # Try plugin manager CLI install (some plugin managers accept 'install' command)
+         java -jar "$PLUGIN_MANAGER_JAR" --install-plugin "$PLUGIN_ID" || \
+         (echo "::warning::Plugins Manager CLI failed to install plugin automatically. Please install $PLUGIN_ID manually." && exit 1)
+
+         # Verifica Instalación de Plugin
+         if find "$JMETER_DIR/lib/ext" -name '*.jar' -print0 | xargs -0 -n1 jar tf 2>/dev/null | grep -q 'kg/apc/jmeter/threads/UltimateThreadGroup.class'; then
+         echo "CUSTOM_THREAD_GROUPS_OK=true" >> "$GITHUB_ENV"
+         echo "Plugin y clase instalados exitosamente"
+         else
+         echo "::error::Plugin instalado pero no está la clase UltimateThreadGroup."
+         exit 1
+         fi
+
+
       - name: Registrar JMeter en PATH
         run: echo "$PWD/apache-jmeter-${JMETER_VERSION}/bin" >> "$GITHUB_PATH"
 
