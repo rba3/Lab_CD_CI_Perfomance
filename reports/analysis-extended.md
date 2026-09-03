@@ -1,11 +1,20 @@
 ## 🔮 Predicciones
 
 ⚠️ **Tendencia de degradación detectada** (MEDIUM risk)
-- Pendiente: +34.5ms/corrida
-- P95 actual: 214.0ms
-- Días hasta WARN: ~16
-- Días hasta FAIL: ~37
+- Pendiente: +44.25ms/corrida
+- P95 actual: 133.0ms
+- Días hasta WARN: ~15
+- Días hasta FAIL: ~30
 - Confianza: 80%
+
+## 🎯 Causa Raíz Identificada
+
+**Latencia inconsistente (outliers)**
+- Causa probable: Spikes de latencia, posible GC o context switching
+- Confianza: 75%
+- Evidencia:
+  - p50 (25.0ms) mucho menor que p95 (133.0ms)
+  - Diferencia de 3x+ indica distribución anómala
 
 
 <!-- JSON Analysis -->
@@ -13,19 +22,22 @@
   "predictions": {
     "prediction": "DEGRADATION_TREND",
     "confidence": 80,
-    "slope_ms_per_run": 34.5,
-    "current_p95": 214.0,
-    "days_to_warn": 16,
-    "days_to_fail": 37,
+    "slope_ms_per_run": 44.25,
+    "current_p95": 133.0,
+    "days_to_warn": 15,
+    "days_to_fail": 30,
     "risk_level": "MEDIUM"
   },
   "recommendations": [],
   "correlations": {},
   "root_cause": {
-    "issue": null,
-    "root_cause": null,
-    "confidence": 0,
-    "evidence": []
+    "issue": "Latencia inconsistente (outliers)",
+    "root_cause": "Spikes de latencia, posible GC o context switching",
+    "confidence": 75,
+    "evidence": [
+      "p50 (25.0ms) mucho menor que p95 (133.0ms)",
+      "Diferencia de 3x+ indica distribuci\u00f3n an\u00f3mala"
+    ]
   },
-  "timestamp": "2026-09-02T16:56:03.531520"
+  "timestamp": "2026-09-03T16:45:47.449332"
 }
