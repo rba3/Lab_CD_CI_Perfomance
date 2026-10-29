@@ -1,10 +1,10 @@
 ## 🔮 Predicciones
 
-⚠️ **Tendencia de degradación detectada** (LOW risk)
-- Pendiente: +1.75ms/corrida
-- P95 actual: 224.0ms
-- Días hasta WARN: ~329
-- Días hasta FAIL: ~729
+⚠️ **Tendencia de degradación detectada** (MEDIUM risk)
+- Pendiente: +50.75ms/corrida
+- P95 actual: 37.0ms
+- Días hasta WARN: ~15
+- Días hasta FAIL: ~28
 - Confianza: 80%
 
 
@@ -13,11 +13,11 @@
   "predictions": {
     "prediction": "DEGRADATION_TREND",
     "confidence": 80,
-    "slope_ms_per_run": 1.75,
-    "current_p95": 224.0,
-    "days_to_warn": 329,
-    "days_to_fail": 729,
-    "risk_level": "LOW"
+    "slope_ms_per_run": 50.75,
+    "current_p95": 37.0,
+    "days_to_warn": 15,
+    "days_to_fail": 28,
+    "risk_level": "MEDIUM"
   },
   "recommendations": [],
   "correlations": {},
@@ -27,5 +27,5 @@
     "confidence": 0,
     "evidence": []
   },
-  "timestamp": "2026-10-28T18:35:02.473685"
+  "timestamp": "2026-10-29T18:43:40.662712"
 }
