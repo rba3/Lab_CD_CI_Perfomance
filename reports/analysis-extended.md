@@ -9,7 +9,7 @@
     "prediction": "STABLE",
     "confidence": 0,
     "slope_ms_per_run": -2.5,
-    "current_p95": 32.0,
+    "current_p95": 36.0,
     "days_to_warn": null,
     "days_to_fail": null,
     "risk_level": "LOW"
@@ -22,5 +22,5 @@
     "confidence": 0,
     "evidence": []
   },
-  "timestamp": "2026-11-16T22:37:39.541073"
+  "timestamp": "2026-11-17T21:26:42.635147"
 }
