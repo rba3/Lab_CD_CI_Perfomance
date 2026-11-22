@@ -8,8 +8,8 @@
   "predictions": {
     "prediction": "STABLE",
     "confidence": 0,
-    "slope_ms_per_run": -1.25,
-    "current_p95": 23.0,
+    "slope_ms_per_run": -3.25,
+    "current_p95": 30.0,
     "days_to_warn": null,
     "days_to_fail": null,
     "risk_level": "LOW"
@@ -22,5 +22,5 @@
     "confidence": 0,
     "evidence": []
   },
-  "timestamp": "2026-11-21T19:53:50.164342"
+  "timestamp": "2026-11-22T20:02:42.221134"
 }
